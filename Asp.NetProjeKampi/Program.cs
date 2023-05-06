@@ -1,3 +1,7 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
+
 namespace Asp.NetProjeKampi
 {
     public class Program
@@ -9,6 +13,34 @@ namespace Asp.NetProjeKampi
             // Add services to the container.
             builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
 
+            builder.Services.AddSession();
+
+            builder.Services.AddMvc(config =>
+            {
+                var policy = new AuthorizationPolicyBuilder()
+                                .RequireAuthenticatedUser()
+                                .Build();
+                config.Filters.Add(new AuthorizeFilter(policy));
+            });
+
+            builder.Services.AddMvc();
+            builder.Services.AddAuthentication(
+                CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(x => {
+                    x.LoginPath = "/Login/Index/";
+                }
+                );
+            //
+        //    builder.Services.AddAuthentication("MyCookieAuthenticationScheme")
+        //.AddCookie("MyCookieAuthenticationScheme", options =>
+        //{
+        //    options.LoginPath = "/Login/Index";
+        //    options.AccessDeniedPath = "/Account/AccessDenied";
+        //});
+            //
+
+
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -19,8 +51,15 @@ namespace Asp.NetProjeKampi
                 app.UseHsts();
             }
 
+
+            app.UseStatusCodePagesWithReExecute("/ErrorPage/Error1","?code={0}");
+
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+
+            app.UseAuthentication();
+            app.UseSession();
 
             app.UseRouting();
 
@@ -28,7 +67,7 @@ namespace Asp.NetProjeKampi
 
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");
+                pattern: "{controller=Blog}/{action=Index}/{id?}");
 
             app.Run();
         }
