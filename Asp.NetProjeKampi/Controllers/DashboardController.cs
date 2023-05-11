@@ -8,6 +8,7 @@ namespace Asp.NetProjeKampi.Controllers
         [AllowAnonymous]
         public IActionResult Index()
         {
+
             return View();
         }
     }
